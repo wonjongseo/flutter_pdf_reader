@@ -8,6 +8,9 @@ import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+// 아이패드 : size 5번째 줄
+// 아이폰 : size 4번째 줄
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const PdfReaderApp());

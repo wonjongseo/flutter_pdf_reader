@@ -10,9 +10,26 @@ from tkinter import messagebox
 # 설정
 # =========================================================
 
-# iPad Air 4 가로 비율
-KINDLE_WIDTH = 1180
-KINDLE_HEIGHT = 820
+# 기기별 Kindle 창 크기
+#
+# Kindle 제목 표시줄은 TITLE_BAR_HEIGHT 만큼
+# 실제 캡처에서 제외된다.
+DEVICE_PRESETS = {
+    "iPad Air 4": {
+        "width": 1180,
+        "height": 820,
+    },
+
+    "iPhone 15": {
+        "width": 590,
+        "height": 1179,
+    },
+}
+
+DEFAULT_DEVICE = "iPad Air 4"
+
+KINDLE_WIDTH = DEVICE_PRESETS[DEFAULT_DEVICE]["width"]
+KINDLE_HEIGHT = DEVICE_PRESETS[DEFAULT_DEVICE]["height"]
 
 # Kindle 창 위치
 KINDLE_X = 100
@@ -317,9 +334,27 @@ def capture_worker(start_page, end_page):
 def start_capture():
     global capture_thread
     global is_capturing
+    global KINDLE_WIDTH
+    global KINDLE_HEIGHT
 
     if is_capturing:
         return
+
+    # -----------------------------------------------------
+    # 선택한 기기 크기 적용
+    # -----------------------------------------------------
+
+    selected_device = device_var.get()
+
+    preset = DEVICE_PRESETS[selected_device]
+
+    KINDLE_WIDTH = preset["width"]
+    KINDLE_HEIGHT = preset["height"]
+
+    print(
+        f"선택 기기: {selected_device} "
+        f"({KINDLE_WIDTH} x {KINDLE_HEIGHT})"
+    )
 
     # -----------------------------------------------------
     # 시작/끝 페이지 읽기
@@ -426,6 +461,7 @@ def start_capture():
     is_capturing = True
 
     # 입력란 잠금
+    device_menu.config(state="disabled")
     start_entry.config(state="disabled")
     end_entry.config(state="disabled")
 
@@ -539,6 +575,10 @@ def reset_buttons():
         state="normal"
     )
 
+    device_menu.config(
+        state="normal"
+    )
+
     start_entry.config(
         state="normal"
     )
@@ -560,7 +600,7 @@ root = tk.Tk()
 
 root.title("Kindle Capture")
 
-root.geometry("460x380")
+root.geometry("460x430")
 
 root.resizable(False, False)
 
@@ -590,6 +630,49 @@ input_frame.pack()
 
 
 # ---------------------------------------------------------
+# 기기 선택
+# ---------------------------------------------------------
+
+device_label = tk.Label(
+    input_frame,
+    text="기기:",
+    font=("Arial", 13)
+)
+
+device_label.grid(
+    row=0,
+    column=0,
+    padx=10,
+    pady=7,
+    sticky="e"
+)
+
+
+device_var = tk.StringVar(
+    value=DEFAULT_DEVICE
+)
+
+
+device_menu = tk.OptionMenu(
+    input_frame,
+    device_var,
+    *DEVICE_PRESETS.keys()
+)
+
+device_menu.config(
+    width=14,
+    font=("Arial", 13)
+)
+
+device_menu.grid(
+    row=0,
+    column=1,
+    padx=10,
+    pady=7
+)
+
+
+# ---------------------------------------------------------
 # 시작 페이지
 # ---------------------------------------------------------
 
@@ -600,7 +683,7 @@ start_label = tk.Label(
 )
 
 start_label.grid(
-    row=0,
+    row=1,
     column=0,
     padx=10,
     pady=7,
@@ -621,7 +704,7 @@ start_entry.insert(
 )
 
 start_entry.grid(
-    row=0,
+    row=1,
     column=1,
     padx=10,
     pady=7
@@ -639,7 +722,7 @@ end_label = tk.Label(
 )
 
 end_label.grid(
-    row=1,
+    row=2,
     column=0,
     padx=10,
     pady=7,
@@ -660,7 +743,7 @@ end_entry.insert(
 )
 
 end_entry.grid(
-    row=1,
+    row=2,
     column=1,
     padx=10,
     pady=7
